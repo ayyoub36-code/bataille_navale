@@ -1,5 +1,4 @@
 # bataille_navale
-
 # la grille de jeu virtuelle est composée de 10 x 10 cases
 # une case est identifiée par ses coordonnées (no ligne, no colonne),
 # mais pour le joueur une colonne sera identifiée par une lettre (de 'A' à 'J')
