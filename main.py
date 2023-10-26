@@ -41,58 +41,39 @@ ships_list = [aircraft_carrier, cruiser, destroyer, submarine, torpedo_boat]
 
 GRID_SIZE = 10
 LETTERS = "ABCDEFGHIJ"
-
 aircraft_carrier = {(2, 2): False, (2, 3): False, (2, 4): False, (2, 5): False, (2, 6): False}  # porte_avion en B2
 cruiser = {(4, 1): False, (5, 1): False, (6, 1): False, (7, 1): False}  # croiseur en A4
 destroyer = {(5, 3): False, (6, 3): False, (7, 3): False}  # contre_torpilleur en C5
 submarine = {(5, 8): False, (5, 9): False, (5, 10): False}  # sous_marin en H5
 torpedo_boat = {(9, 5): False, (9, 6): False}  # torpilleur en E9
-
 ships_list = [aircraft_carrier, cruiser, destroyer, submarine, torpedo_boat]
 
-# ships_list = [aircraft_carrier, cruiser]
-end_game = False
-
 print("°° Bienvenu dans votre jeu préféré Bataille Navale °°")
-while not end_game:
-    nb_points = 0  # nombre de points des bateaux total
-    response = input("veuillez saisir les coordonées de votre tire exemple(A5, H9) :")
-    letter = [x for x in LETTERS]
-    # print(letter)
-    y, x = str(response[0]), int(response[1:])
-    # print("x:" + str(x), "y: " + y)
-    if y in letter:
-        letter_value = int(letter.index(y) + 1)
-        y = letter_value
-        key = (x, y)
-        # print(key)
-        flag = False
-        for ship in ships_list:
-            # vérifier si les coordonées appartiennent à un bateau
-            if key in ship:
-                if ship[key]:
-                    print("Vous avez déja tiré sur cette partie !")
-                    break
-                ship[key] = True
-                print(ship)
-                print("Touché !!")
-                flag = True
-
-        # tire qui tome à l'eau
-        if not flag:
-            print("Votre tire est tomber à l'eau !")
-    else:  # lettre qui sont pas dans la tableau
-        print("Veuillez saisir des coordonées valides !")
-
-    # mettre à jour le compteur pour la fin du jeu
-    # nb_points += len(ship)
+while ships_list:
+    valid_coord = False
+    key = None
+    while not valid_coord:
+        response = input("veuillez saisir les coordonées de votre tire exemple(A5, H9) :")
+        if 2 <= len(response) <= 3:
+            y, x = response[0], response[1:]
+            y = y.upper()
+            try:
+                x = int(x)
+                letter = [x for x in LETTERS]
+                if y in letter and 1 <= x <= GRID_SIZE:
+                    y = int(letter.index(y) + 1)
+                    valid_coord = True
+                    key = (x, y)
+            except ValueError:
+                pass
     for ship in ships_list:
-        for ship_single in ship.values():
-            # print(ship_single)
-            if ship_single:
-                nb_points += 1
-    print("nombre de points :", nb_points)
-    if nb_points == 17:
-        print("jeu terminé !")
-        end_game = True
-
+        if key in ship:  # vérifier si les coordonées appartiennent à un bateau
+            ship[key] = True
+            print("Touché !!")
+        if False not in ship.values():
+            print("Le navire touché est coulé !")
+            ships_list.remove(ship)
+        break
+    else:
+        print("Votre tire est tomber à l'eau !")
+print("Bravo, vous avez coulé tous les navires")
