@@ -48,10 +48,9 @@ submarine = {(5, 8): False, (5, 9): False, (5, 10): False}  # sous_marin en H5
 torpedo_boat = {(9, 5): False, (9, 6): False}  # torpilleur en E9
 ships_list = [aircraft_carrier, cruiser, destroyer, submarine, torpedo_boat]
 
-print("°° Bienvenu dans votre jeu préféré Bataille Navale °°")
-while ships_list:
+
+def ask_coord() -> ():
     valid_coord = False
-    key = None
     while not valid_coord:
         response = input("veuillez saisir les coordonées de votre tire exemple(A5, H9) :")
         if 2 <= len(response) <= 3:
@@ -64,16 +63,40 @@ while ships_list:
                     y = int(letter.index(y) + 1)
                     valid_coord = True
                     key = (x, y)
+                    return key
             except ValueError:
                 pass
-    for ship in ships_list:
-        if key in ship:  # vérifier si les coordonées appartiennent à un bateau
-            ship[key] = True
-            print("Touché !!")
-        if False not in ship.values():
+
+
+def ship_is_hit(ship_val, shot_coord) -> bool:
+    if shot_coord in ship_val:  # vérifier si les coordonées appartiennent à un bateau
+        ship_val[shot_coord] = True
+        return True
+    return False
+
+
+def ship_is_sunk(ship_val) -> bool:
+    if False not in ship_val.values():
+        return True
+    return False
+
+
+def analyze_shot(ship_val, shot_coord) -> bool:
+    if ship_is_hit(ship_val, shot_coord):
+        print("Touché !!")
+        if ship_is_sunk(ship_val):
             print("Le navire touché est coulé !")
-            ships_list.remove(ship)
-        break
+            ships_list.remove(ship_val)
+        return True
+    return False
+
+
+print("°° Bienvenu dans votre jeu préféré Bataille Navale °°")
+while ships_list:
+    coord = ask_coord()
+    for ship in ships_list:
+        if analyze_shot(ship, coord):
+            break
     else:
         print("Votre tire est tomber à l'eau !")
 print("Bravo, vous avez coulé tous les navires")
