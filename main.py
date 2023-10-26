@@ -37,8 +37,13 @@ ships_list = [aircraft_carrier, cruiser, destroyer, submarine, torpedo_boat]
 # d'un tir, puis à indiquer si ce tir touche un navire (en mémorisant les conséquences
 # de ce tir, indiquant si le navire est coulé à la suite de plusieurs tirs convergents,
 # et si la partie est finie lorsque le dernier navire est coulé)
+# ex. : ' ' : mer, 'X' : tir raté, '#' : partie
+# d'un navire touché par un tir, '-' : partie d'un navire coulé)
 """
-
+# SQUARE_STATE_REPR = (' ', 'X', '#', '-')
+SEA, MISSED_SHOT, HIT_SHOT, SUNK_SHOT = 0, 1, 2, 3
+SQUARE_STATE_REPR = [SEA, MISSED_SHOT, HIT_SHOT, SUNK_SHOT]
+played_shots = set()  # liste des coups jouées
 GRID_SIZE = 10
 LETTERS = "ABCDEFGHIJ"
 aircraft_carrier = {(2, 2): False, (2, 3): False, (2, 4): False, (2, 5): False, (2, 6): False}  # porte_avion en B2
@@ -86,17 +91,72 @@ def analyze_shot(ship_val, shot_coord) -> bool:
         print("Touché !!")
         if ship_is_sunk(ship_val):
             print("Le navire touché est coulé !")
+            values_of_case = [x for x in ship_val.keys()]
+            for played_shot in played_shots:
+                for values_of_case_single in values_of_case:
+                    if values_of_case_single == played_shot[0]:
+                        played_shots.remove(played_shot)
+                        shoot_synk = (values_of_case_single, SQUARE_STATE_REPR[SUNK_SHOT])
+                        played_shots.add(shoot_synk)
+                        display_grid()
+            print(values_of_case)
             ships_list.remove(ship_val)
         return True
     return False
 
 
+def grid_square_state(coord_):
+    # retourne l etat de la case
+    for played_shot in played_shots:
+        if played_shot[0] == coord_:
+            # print("state_case:", played_shot[1])
+            return played_shot[1]
+    return 0
+
+
+def display_grid():
+    """Affichage de la grille de jeu."""
+
+    print('    ', end='')
+    for x in range(GRID_SIZE):
+        letter = LETTERS[x]
+        print(' {}  '.format(letter), end='')
+    print()
+    print('  ', '+---' * GRID_SIZE + '+')
+    for line_no in range(1, GRID_SIZE + 1):
+        print('{:>2} |'.format(line_no), end='')
+        for column_no in range(1, GRID_SIZE + 1):
+            coord_ = (line_no, column_no)
+            square_state = grid_square_state(coord_)
+            state_str = SQUARE_STATE_REPR[square_state]
+            # bidouillage pour afficher les val des cases !
+            if state_str == 0:
+                val = ' '
+            elif state_str == 1:
+                val = 'X'
+            elif state_str == 2:
+                val = '#'
+            else:
+                val = '-'
+            print(' {} |'.format(val), end='')
+        print()
+        print('  ', '+---' * GRID_SIZE + '+')
+
+
 print("°° Bienvenu dans votre jeu préféré Bataille Navale °°")
+
 while ships_list:
+    display_grid()
     coord = ask_coord()
     for ship in ships_list:
         if analyze_shot(ship, coord):
+            shoot = (coord, SQUARE_STATE_REPR[HIT_SHOT])
+            played_shots.add(shoot)
+            print(played_shots)
             break
     else:
+        shoot = (coord, SQUARE_STATE_REPR[MISSED_SHOT])
+        played_shots.add(shoot)
+        print(played_shots)
         print("Votre tire est tomber à l'eau !")
 print("Bravo, vous avez coulé tous les navires")
