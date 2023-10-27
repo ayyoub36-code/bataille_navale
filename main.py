@@ -76,7 +76,13 @@ def ask_coord() -> ():
 def ship_is_hit(ship_val, shot_coord) -> bool:
     if shot_coord in ship_val:  # vérifier si les coordonées appartiennent à un bateau
         ship_val[shot_coord] = True
+        shot = (coord, SQUARE_STATE_REPR[HIT_SHOT])
+        played_shots.add(shot)
+        print(played_shots)
         return True
+    shot = (coord, SQUARE_STATE_REPR[MISSED_SHOT])
+    played_shots.add(shot)
+    print(played_shots)
     return False
 
 
@@ -98,7 +104,6 @@ def analyze_shot(ship_val, shot_coord) -> bool:
                         played_shots.remove(played_shot)
                         shoot_synk = (values_of_case_single, SQUARE_STATE_REPR[SUNK_SHOT])
                         played_shots.add(shoot_synk)
-                        display_grid()
             print(values_of_case)
             ships_list.remove(ship_val)
         return True
@@ -150,13 +155,7 @@ while ships_list:
     coord = ask_coord()
     for ship in ships_list:
         if analyze_shot(ship, coord):
-            shoot = (coord, SQUARE_STATE_REPR[HIT_SHOT])
-            played_shots.add(shoot)
-            print(played_shots)
             break
     else:
-        shoot = (coord, SQUARE_STATE_REPR[MISSED_SHOT])
-        played_shots.add(shoot)
-        print(played_shots)
         print("Votre tire est tomber à l'eau !")
 print("Bravo, vous avez coulé tous les navires")
